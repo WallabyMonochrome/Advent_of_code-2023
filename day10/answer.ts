@@ -104,20 +104,21 @@ function _isInCircuit(pos: Coordinate) {
 function _findIntersec(pos: Coordinate) {
   const {isCircuit} = _isInCircuit(pos);
   if (isCircuit || pos.x === inputdata.length - 1 || pos.y === inputdata[pos.x].length - 1) return false;
-  let foundBefore = 0;
-  let foundAfter = 0;
   let directionSwitch = 0;
   let currentDir = "";
   for (let before = 0; before < pos.y; before++) {
     const {isCircuit, symbol} = _isInCircuit({x: pos.x, y: before});
     if (isCircuit) {
-      // console.log("MM", pos, symbol, directionSwitch, currentDir);
       if (symbol === "J" || symbol === "L") {
         if (currentDir === "south") {
           directionSwitch++;
           currentDir = "";
         } else {
-          currentDir = "north";
+          if (currentDir === "north") {
+            currentDir = "";
+          } else {
+            currentDir = "north";
+          }
         }
       }
       if (symbol === "7" || symbol === "F") {
@@ -125,28 +126,25 @@ function _findIntersec(pos: Coordinate) {
           directionSwitch++;
           currentDir = "";
         } else {
-          currentDir = "south";
+          if (currentDir === "south") {
+            currentDir = "";
+          } else {
+            currentDir = "south";
+          }
         }
       }
       if (symbol === "|") {
-        // console.log("MAIS", currentDir);
-        // if (currentDir === "south") currentDir = "north";
-        // else if (currentDir === "north") currentDir = "south";
         currentDir = "";
         directionSwitch++
       }
     }
   }
   if (!directionSwitch) {
-    // console.log("Outside", foundBefore, foundAfter);
     return false;
   }
   if ((directionSwitch % 2 !== 0)) {
-    console.log("Is in", pos, inputdata[pos.x][pos.y], directionSwitch);
     return true;
   }
-  // console.log("Not in", foundBefore, foundAfter);
-
   return false;
 }
 
@@ -166,15 +164,13 @@ function main() {
   const startCoords = _findStartingPoint();
   const loopStart = _findStartType(startCoords);
   const startSymbol = _findStartSymbol(startCoords);
-  // const res = _runPipe(startCoords, loopStart, 1);
-  const res: number = _runPipe(startCoords, loopStart);
+  // const res: number = _runPipe(startCoords, loopStart);
   for (let i = 0; i < circuitCoords.length; i++) {
     if (inputdata[circuitCoords[i].x][circuitCoords[i].y] === "S") {
       inputdata[circuitCoords[i].x][circuitCoords[i].y] = startSymbol;
     }
     inputdata[circuitCoords[i].x][circuitCoords[i].y] = `X${inputdata[circuitCoords[i].x][circuitCoords[i].y]}`;
   }
-  console.table(inputdata.join(""));
   const answer = _findInside();
   console.log("Part 2", answer);
 }
